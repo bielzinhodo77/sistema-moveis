@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Sistema de Móveis</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body {
+      font-family: Arial;
+      background: #f4f6f9;
+      margin: 0;
+      padding: 20px;
+    }
+
+    h1 {
+      text-align: center;
+      color: #333;
+    }
+
+    .container {
+      max-width: 500px;
+      margin: auto;
+    }
+
+    .card {
+      background: white;
+      padding: 15px;
+      border-radius: 10px;
+      margin-top: 15px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+
+    input {
+      width: 100%;
+      padding: 10px;
+      margin: 5px 0;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+    }
+
+    button {
+      width: 100%;
+      padding: 12px;
+      margin-top: 10px;
+      border: none;
+      border-radius: 8px;
+      background: #4CAF50;
+      color: white;
+      font-weight: bold;
+      font-size: 16px;
+    }
+
+    button:hover {
+      background: #45a049;
+    }
+
+    .lista {
+      margin-top: 20px;
+    }
+
+    .item {
+      background: #fff;
+      padding: 10px;
+      border-radius: 8px;
+      margin-top: 10px;
+      border-left: 5px solid #4CAF50;
+    }
+
+    .titulo {
+      font-weight: bold;
+      margin-bottom: 5px;
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+
+<h1>📦 Loja de Móveis</h1>
+
+<div class="card">
+<h3>Nova Entrega</h3>
+<input id="nome" placeholder="Nome do cliente">
+<input id="endereco" placeholder="Endereço">
+<input id="movel" placeholder="Móvel">
+<input id="valor" placeholder="Valor">
+<input id="data" type="date">
+<button onclick="salvarEntrega()">Salvar Entrega</button>
+</div>
+
+<div class="card">
+<h3>Nova Busca</h3>
+<input id="nome_b" placeholder="Nome do cliente">
+<input id="endereco_b" placeholder="Endereço">
+<input id="movel_b" placeholder="Móvel">
+<input id="valor_b" placeholder="Valor">
+<input id="data_b" type="date">
+<button onclick="salvarBusca()">Salvar Busca</button>
+</div>
+
+<div class="lista">
+<h3>📋 Registros</h3>
+<div id="lista"></div>
+</div>
+
+</div>
+
+<script>
+const API = "http://192.168.1.60:3000";
+
+async function salvarEntrega() {
+  await fetch(API + "/entregas", {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({
+      nome_cliente: nome.value,
+      endereco: endereco.value,
+      movel: movel.value,
+      valor: valor.value,
+      data_entrega: data.value
+    })
+  });
+  carregar();
+}
+
+async function salvarBusca() {
+  await fetch(API + "/buscas", {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({
+      nome_cliente: nome_b.value,
+      endereco: endereco_b.value,
+      movel: movel_b.value,
+      valor: valor_b.value,
+      data_busca: data_b.value
+    })
+  });
+  carregar();
+}
+
+async function carregar() {
+  let entregas = await fetch(API + "/entregas").then(r => r.json());
+  let buscas = await fetch(API + "/buscas").then(r => r.json());
+
+  lista.innerHTML =
+    "<h4>Entregas</h4>" +
+    entregas.map(e =>
+      `<div class="item">
+        <div class="titulo">${e.nome_cliente}</div>
+        ${e.movel} - R$${e.valor}
+      </div>`
+    ).join("") +
+    "<h4>Buscas</h4>" +
+    buscas.map(b =>
+      `<div class="item">
+        <div class="titulo">${b.nome_cliente}</div>
+        ${b.movel}
+      </div>`
+    ).join("");
+}
+
+carregar();
+</script>
+
+</body>
+</html>
